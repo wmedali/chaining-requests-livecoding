@@ -1,0 +1,204 @@
+{
+	"info": {
+		"_postman_id": "d163613f-3072-4631-9ba4-16a8427374fc",
+		"name": "GoogleBooks API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "LIST Books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response = pm.response\r",
+							"console.log(response)\r",
+							"let volumeIds = []\r",
+							"\r",
+							"if(response.code !== 200 ) {\r",
+							"    postman.setNextRequest('toto')\r",
+							"} else {\r",
+							"    let items = response.json().items\r",
+							"    pm.test(\"Differents tests \", () => {\r",
+							"        //pm.expect(items).not.empty\r",
+							"        //pm.expect(items).to.have.length(data.maxResults)\r",
+							"        pm.expect(items).to.have.length(pm.iterationData.get('maxResults'))\r",
+							"        pm.expect(items[0].selfLink).to.satisfy( url => {\r",
+							"            return url.startsWith('https://')\r",
+							"        })\r",
+							"    })\r",
+							"    items.forEach( item => {\r",
+							"        volumeIds.push(item.id)\r",
+							"    })\r",
+							"    pm.collectionVariables.set(\"volumeIds\", volumeIds);\r",
+							"\r",
+							"    \r",
+							"}\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{googleBooksApiKey}}",
+							"type": "string"
+						},
+						{
+							"key": "in",
+							"value": "query",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "key",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://www.googleapis.com/books/v1/volumes?q=postman&maxResults={{maxResults}}",
+					"protocol": "https",
+					"host": [
+						"www",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"books",
+						"v1",
+						"volumes"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "postman"
+						},
+						{
+							"key": "maxResults",
+							"value": "{{maxResults}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Book by VolumeId",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let volumeIds = pm.collectionVariables.get('volumeIds')\r",
+							"\r",
+							"pm.variables.set('volumeId', volumeIds[0])\r",
+							"volumeIds.shift()\r",
+							"\r",
+							"pm.collectionVariables.set('volumeIds', volumeIds)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let volumeIds = pm.collectionVariables.get('volumeIds')\r",
+							"\r",
+							"if( volumeIds.length > 0) {\r",
+							"    postman.setNextRequest('GET Book by VolumeId')\r",
+							"} else {\r",
+							"    pm.collectionVariables.unset('volumeIds')\r",
+							"    postman.setNextRequest(null)\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://www.googleapis.com/books/v1/volumes/:volumeId",
+					"protocol": "https",
+					"host": [
+						"www",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"books",
+						"v1",
+						"volumes",
+						":volumeId"
+					],
+					"variable": [
+						{
+							"key": "volumeId",
+							"value": "{{volumeId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "toto",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "wwww.google.com",
+					"host": [
+						"wwww",
+						"google",
+						"com"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"console.log(pm.info.requestId)"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
